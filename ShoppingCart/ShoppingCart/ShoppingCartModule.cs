@@ -10,24 +10,36 @@ namespace ShoppingCart.ShoppingCart
             IProductcatalogClient productcatalog,
             IEventStore eventStore) : base("/shoppingcart")
         {
-            Get(
-                "/{userid:int}",
+            Get("/{userid:int}", parameters =>
+                 {
+                     var userId = (int)parameters.userid;
+                     return shoppingCartStore.Get(userId);
+                 });
+
+            Post("/{userid:int}/items", async (parameters, _) =>
+                 {
+                     var productcatalogIds = this.Bind<int[]>();
+                     var userId = (int)parameters.userid;
+
+                     var shoppingCart = shoppingCartStore.Get(userId);
+                     var shoppingCartItems = await productcatalog.GetShoppingCartItems(productcatalogIds)
+                         .ConfigureAwait(false);
+                     shoppingCart.AddItems(shoppingCartItems, eventStore);
+                     shoppingCartStore.Save(shoppingCart);
+                     return shoppingCart;
+                 });
+
+            Delete("/{userid:int}/items",
                 parameters =>
                 {
-                    var userId = (int)parameters.userid;
-                    return shoppingCartStore.Get(userId);
-                });
-            Post("/{userid:int}/items",
-                async (parameters, _) =>
-                {
-                    var productcatalogIds = this.Bind<int[]>();
+                    var productCatalogIds = this.Bind<int[]>();
                     var userId = (int)parameters.userid;
 
                     var shoppingCart = shoppingCartStore.Get(userId);
-                    var shoppingCartItems = await productcatalog.GetShoppingCartItems(productcatalogIds)
-                        .ConfigureAwait(false);
-                    shoppingCart.AddItems(shoppingCartItems, eventStore);
+                    shoppingCart.RemoveItems(productCatalogIds, eventStore);
                     shoppingCartStore.Save(shoppingCart);
+
+                    return shoppingCart;
                 });
         }
     }
