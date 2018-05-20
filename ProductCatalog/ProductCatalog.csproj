@@ -9,11 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.50.5" />
-    <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.0.23" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
     <PackageReference Include="Nancy" Version="2.0.0-barneyrubble" />
-    <PackageReference Include="Polly" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
